@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alexandre Gonçalves</title>
+    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -14,7 +16,7 @@
             --text-sub: #6b7280;
             --accent-linkedin: #0077b5;
             --accent-email: #111827;
-            --accent-success: #10b981; /* Green for success state */
+            --accent-success: #10b981;
         }
 
         body {
@@ -37,7 +39,7 @@
             text-align: center;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
             margin: 20px;
-            box-sizing: border-box; /* Ensures padding doesn't overflow width */
+            box-sizing: border-box;
         }
 
         .profile-img {
@@ -68,7 +70,6 @@
             gap: 15px;
         }
 
-        /* Shared Button Styles */
         .btn {
             display: flex;
             align-items: center;
@@ -83,7 +84,7 @@
             cursor: pointer;
             border: none;
             font-family: inherit;
-            width: 100%; /* Full width */
+            width: 100%;
             box-sizing: border-box;
         }
 
@@ -138,28 +139,59 @@
 
     <script>
         function copyEmail() {
-            // ▼▼▼ PUT YOUR ACTUAL EMAIL ADDRESS HERE ▼▼▼
             const myEmail = "hello@alexandregoncalves.pt"; 
 
-            navigator.clipboard.writeText(myEmail).then(() => {
+            // Logic to update the button style
+            const updateButtonSuccess = () => {
                 const btn = document.getElementById("emailBtn");
                 const originalContent = '<i class="fas fa-envelope"></i> Copy Email Address';
                 
-                // 1. Change Text and Icon
-                btn.innerHTML = '<i class="fas fa-check"></i> Copied to Clipboard!';
-                
-                // 2. Change Color to Green
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                 btn.style.backgroundColor = "var(--accent-success)";
                 
-                // 3. Revert back after 2 seconds
                 setTimeout(() => {
                     btn.innerHTML = originalContent;
                     btn.style.backgroundColor = "var(--accent-email)";
                 }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-                alert("Could not copy email automatically. Please copy it manually: " + myEmail);
-            });
+            };
+
+            // 1. Try Modern API (Requires HTTPS)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(myEmail).then(updateButtonSuccess).catch(() => {
+                    // If modern API fails, try fallback
+                    fallbackCopy(myEmail);
+                });
+            } else {
+                // 2. Use Fallback immediately if not secure context
+                fallbackCopy(myEmail);
+            }
+
+            function fallbackCopy(text) {
+                // Create a temporary textarea element
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                
+                // Ensure it's not visible but part of the DOM
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                
+                // Select and Copy
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    updateButtonSuccess();
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                    alert("Manual Copy: " + text);
+                }
+                
+                // Clean up
+                document.body.removeChild(textArea);
+            }
         }
     </script>
 
